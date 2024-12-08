@@ -15,19 +15,58 @@ void printVector2D(std::vector<std::vector<char>> v)
         
         std::cout << std::endl; 
     }
-
 }
 
+bool inBounds(int x, int y, int rows, int cols)
+{
+    return (x >= 0 && x < rows && y >= 0 && y < cols);
+}
+
+int check_XMAS(std::vector<std::vector<char>>& grid, int x1, int y1)
+{
+    const std::string search = "XMAS";
+    int r = grid.size();
+    int c = grid[0].size();
+    int cnt = 0;
+
+
+    for (int drow = -1; drow <= 1; drow++)
+    {
+        for (int dcol = -1; dcol <= 1; dcol++)
+        {
+            if (drow == 0 && dcol == 0) continue;
+            bool found = true;
+
+            for (int i = 0; i < 4; ++i)
+            {
+                int x2 = x1 + drow * i;
+                int y2 = y1 + dcol * i;
+
+                if (!(inBounds(x2, y2, r, c) && grid[x2][y2] == search[i]))
+                {
+                    found = false;
+                    break;
+                }
+            }
+
+            cnt += found;
+        }
+    }
+
+    return cnt;
+}
+
+// Naive approach
 int check(std::vector<std::vector<char>>& grid, int i, int j)
 {
     int row = grid.size();
     int col = grid[0].size();
     int cnt = 0;
 
-    bool right = (j <= col - 4);
+    bool right = (j < col - 3);
     bool left = (j >= 3);
     bool up = (i >= 3 );
-    bool down = (i <= row - 4);
+    bool down = (i < row - 3);
 
     // check to the right
     if(right && grid[i][j + 1] == 'M' && grid[i][j + 2] == 'A' && grid[i][j + 3] == 'S')
@@ -104,6 +143,7 @@ int main(int argc, char const *argv[])
 
     std::vector<std::vector<char>> grid;
 
+    // Parse the input
     if (inputFile.is_open())
     {
        std::string line;
@@ -120,12 +160,13 @@ int main(int argc, char const *argv[])
             }
 
             grid.push_back(row);
+            row.clear();
        }
     }
 
     //printVector2D(grid);
 
-    // check for every element equal to x in all directions
+    // Check in all directions for the word "XMAS" starting with 'X'
 
     for(int i = 0; i < grid.size(); ++i)
     {
@@ -133,12 +174,13 @@ int main(int argc, char const *argv[])
         {
             if(grid[i][j] == 'X')
             {
-                ans += check(grid, i, j);
+                ans += check_XMAS(grid, i, j);
             }
         }
     }
 
     std::cout << ans << " ";
+    inputFile.close();
 
     return 0;
 }

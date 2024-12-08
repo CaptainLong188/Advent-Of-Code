@@ -18,35 +18,23 @@ void printVector2D(std::vector<std::vector<char>> v)
 
 }
 
-int check(std::vector<std::vector<char>>& grid, int i, int j)
+bool check_X_MAS(std::vector<std::vector<char>>& grid, int i, int j)
 {
-    int row = grid.size();
-    int col = grid[0].size();
+    std::vector<std::pair<int, int>> dirs = {{-1, -1}, {-1, 1}, {1, 1}, {1, -1}};
+    std::string s;
 
-    bool right = (j <= col - 2);
-    bool left = (j >= 1);
-    bool up = (i >= 1);
-    bool down = (i <= row - 2);
-
-    // check for the pattern
-    if(right && left && up && down)
+    for (const auto& dir : dirs)
     {
-        char ul = grid[i - 1][j - 1];
-        char ur = grid[i - 1][j + 1];
-        char dl = grid[i + 1][j - 1]; 
-        char dr = grid[i + 1][j + 1];
-
-        if((ul == 'M' && dr == 'S') || (ul == 'S' && dr == 'M'))
-        {
-            if((ur == 'M' && dl == 'S') || (ur == 'S' && dl == 'M'))
-            {
-                std::cout << "Patter found at (" << i << " " << j << ")" << std::endl;
-                return 1;
-            }
-        }
+        s += grid[i + dir.first][j + dir.second];
     }
 
-    return 0;
+    if(s == "MMSS" || s == "MSSM" || s == "SMMS" || s == "SSMM")
+    {
+        std::cout << "Patter found at (" << i << " " << j << ")" << std::endl;
+        return true;
+    }
+
+    return false;
 }
 
 int main(int argc, char const *argv[])
@@ -80,25 +68,28 @@ int main(int argc, char const *argv[])
             }
 
             grid.push_back(row);
+            row.clear();
        }
     }
 
     //printVector2D(grid);
 
-    // check for every element equal to A for the pattern
+    // Check for every element equal to A for the pattern
+    // Don't need to check in first or last row or first or last column
 
-    for(int i = 0; i < grid.size(); ++i)
+    for(int i = 1; i < grid.size() - 1; ++i)
     {
-        for(int j = 0; j < grid[0].size(); ++j)
+        for(int j = 1; j < grid[0].size() - 1; ++j)
         {
             if(grid[i][j] == 'A')
             {
-                ans += check(grid, i, j);
+                ans += check_X_MAS(grid, i, j);
             }
         }
     }
 
     std::cout << ans << " ";
+    inputFile.close();
 
     return 0;
 }
